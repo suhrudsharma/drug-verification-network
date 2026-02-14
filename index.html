@@ -3,742 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PharmaChain | Blockchain Drug Traceability</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0f172a; /* Slate 900 */
-            color: #e2e8f0;
-        }
-        
-        .font-mono {
-            font-family: 'Space Mono', monospace;
-        }
-
-        /* Custom Gradient Background */
-        .bg-gradient-pharma {
-            background: radial-gradient(circle at top right, #1e3a8a, #0f172a 60%),
-                        radial-gradient(circle at bottom left, #0f172a, #020617 60%);
-            background-attachment: fixed;
-        }
-
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-field {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #334155;
-            color: white;
-            transition: all 0.2s ease;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-        }
-
-        /* QR Scan Animation */
-        .scan-line {
-            width: 100%;
-            height: 2px;
-            background: #22c55e;
-            position: absolute;
-            top: 0;
-            left: 0;
-            animation: scan 2.5s infinite linear;
-            box-shadow: 0 0 8px #22c55e;
-        }
-
-        @keyframes scan {
-            0% { top: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-
-        /* Timeline Styles */
-        .timeline-item {
-            position: relative;
-            padding-left: 2rem;
-            padding-bottom: 2rem;
-            border-left: 2px solid #334155;
-        }
-        .timeline-item:last-child {
-            border-left: 2px solid transparent;
-        }
-        .timeline-dot {
-            position: absolute;
-            left: -9px;
-            top: 0;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #3b82f6;
-            border: 2px solid #0f172a;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-    </style>
+    <title>PharmaChain — Anti-Counterfeit Supply Tracker</title>
+    <!-- Google Fonts (declared here, styled in CSS) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gradient-pharma min-h-screen flex flex-col">
+<body>
 
-    <!-- Navigation -->
-    <header class="border-b border-slate-700 bg-slate-900/80 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload()">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-lg">
-                    <i class="fa-solid fa-link"></i>
+    <!-- ========== HEADER ========== -->
+    <header id="site-header">
+        <div class="header-inner">
+            <div class="logo-block">
+                <div class="logo-icon">⬡</div>
+                <div class="logo-text">
+                    <span class="logo-main">PHARMACHAIN</span>
+                    <span class="logo-sub">ANTI-COUNTERFEIT SUPPLY TRACKER</span>
                 </div>
-                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-                    PharmaChain
-                </h1>
             </div>
-            
-            <!-- Desktop Nav -->
-            <div class="hidden md:flex bg-slate-800/50 rounded-lg p-1 border border-slate-700/50">
-                <button onclick="app.setRole('manufacturer')" id="nav-manufacturer" class="role-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all">Manufacturer</button>
-                <button onclick="app.setRole('distributor')" id="nav-distributor" class="role-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all">Distributor</button>
-                <button onclick="app.setRole('pharmacy')" id="nav-pharmacy" class="role-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all">Pharmacy</button>
-                <button onclick="app.setRole('customer')" id="nav-customer" class="role-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all">Customer</button>
-            </div>
-            
-            <!-- Mobile Select -->
-            <div class="md:hidden">
-                <select onchange="app.setRole(this.value)" id="mobile-role-select" class="bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
-                    <option value="manufacturer">Manufacturer</option>
-                    <option value="distributor">Distributor</option>
-                    <option value="pharmacy">Pharmacy</option>
-                    <option value="customer">Customer</option>
-                </select>
+            <nav id="main-nav">
+                <button class="nav-btn active" data-tab="manufacture">MANUFACTURE</button>
+                <button class="nav-btn" data-tab="handover">HANDOVER</button>
+                <button class="nav-btn" data-tab="verify">VERIFY</button>
+            </nav>
+            <div class="chain-status">
+                <span class="status-dot" id="chain-dot"></span>
+                <span id="chain-label">SEPOLIA TESTNET</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8">
-        
-        <!-- Dashboard Container (Dynamic Content) -->
-        <div id="dashboard-container" class="max-w-5xl mx-auto min-h-[400px]">
-            <!-- Views will be injected here -->
-        </div>
+    <!-- ========== MAIN CONTENT ========== -->
+    <main id="main-content">
 
-        <!-- Simulated Blockchain Ledger (Visible for Demo) -->
-        <div class="max-w-5xl mx-auto mt-12 animate-fade-in">
-            <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-blue-500">
-                <div class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
-                    <h3 class="text-sm font-semibold text-blue-300 uppercase tracking-wider">
-                        <i class="fa-solid fa-cube mr-2"></i>Live Blockchain Ledger (Simulated)
-                    </h3>
-                    <button onclick="app.clearData()" class="text-xs text-red-400 hover:text-red-300 hover:underline">
-                        <i class="fa-solid fa-trash mr-1"></i> Reset Chain
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-400">
-                        <thead class="text-xs text-slate-500 uppercase bg-slate-900/50">
-                            <tr>
-                                <th class="px-6 py-3">Batch ID</th>
-                                <th class="px-6 py-3">Drug Name</th>
-                                <th class="px-6 py-3">Owner</th>
-                                <th class="px-6 py-3">Status</th>
-                                <th class="px-6 py-3">Last Update</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledger-body">
-                            <!-- Ledger Rows -->
-                        </tbody>
-                    </table>
-                    <div id="empty-ledger-msg" class="p-8 text-center text-slate-600 hidden">
-                        No transactions recorded on the blockchain yet.
-                    </div>
-                </div>
+        <!-- ---- TICKER / CHAIN FEED ---- -->
+        <div id="ticker-bar">
+            <span class="ticker-label">CHAIN FEED</span>
+            <div class="ticker-track">
+                <span class="ticker-item">🔗 Block #21,834,001 — Confirmed</span>
+                <span class="ticker-item">✅ M-001 Verified — Batch B-101</span>
+                <span class="ticker-item">⚠️ Expiry Check Triggered — M-003</span>
+                <span class="ticker-item">🏭 New Manufacture — M-004 Registered</span>
             </div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB 1: MANUFACTURE                                           -->
+        <!-- ============================================================ -->
+        <section id="tab-manufacture" class="tab-panel active">
+            
+            <div class="panel-header">
+                <h1 class="panel-title">REGISTER MEDICINE</h1>
+                <p class="panel-desc">Create a new medicine unit on-chain. A QR code linked to this Batch ID will be generated and recorded to the Sepolia blockchain.</p>
+            </div>
+
+            <div class="panel-body">
+
+                <!-- Form Card -->
+                <div class="card form-card">
+                    <div class="card-label">01 — INPUT PARAMETERS</div>
+                    <form id="manufacture-form">
+
+                        <div class="field-group">
+                            <label for="batch-id">BATCH ID</label>
+                            <input type="text" id="batch-id" name="batch_id" placeholder="e.g. B-101" required>
+                            <span class="field-hint">This becomes the Parent QR identifier for this unit.</span>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="medicine-name">MEDICINE NAME</label>
+                            <input type="text" id="medicine-name" name="medicine_name" placeholder="e.g. Paracetamol 500mg" required>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="origin-gps">ORIGIN GPS COORDINATES</label>
+                            <input type="text" id="origin-gps" name="location" placeholder="e.g. 13.0827,80.2707" required>
+                            <span class="field-hint">Latitude, Longitude — used for teleportation detection.</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="manufacture-btn">
+                            <span class="btn-text">REGISTER ON-CHAIN</span>
+                            <span class="btn-loader hidden">BROADCASTING...</span>
+                        </button>
+
+                    </form>
+                </div>
+
+                <!-- Result Card (hidden until API responds) -->
+                <div class="card result-card hidden" id="manufacture-result">
+                    <div class="card-label">02 — BLOCKCHAIN RECEIPT</div>
+
+                    <div class="result-row">
+                        <span class="result-key">TX HASH</span>
+                        <span class="result-val mono" id="res-tx-hash">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-key">STATUS</span>
+                        <span class="result-val status-badge" id="res-status">—</span>
+                    </div>
+
+                    <!-- QR Code Display -->
+                    <div class="qr-block">
+                        <div class="qr-label">BATCH QR CODE</div>
+                        <img id="res-qr-img" src="" alt="QR Code" class="qr-img">
+                        <a id="res-qr-download" href="#" download class="btn btn-ghost">DOWNLOAD QR</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB 2: HANDOVER                                              -->
+        <!-- ============================================================ -->
+        <section id="tab-handover" class="tab-panel hidden">
+
+            <div class="panel-header">
+                <h1 class="panel-title">SUPPLY CHAIN HANDOVER</h1>
+                <p class="panel-desc">Move a batch through the supply chain. The AI risk engine evaluates each transfer for anomalies before writing to the blockchain.</p>
+            </div>
+
+            <div class="panel-body">
+
+                <!-- Form Card -->
+                <div class="card form-card">
+                    <div class="card-label">01 — TRANSFER DETAILS</div>
+                    <form id="handover-form">
+
+                        <div class="field-group">
+                            <label for="ho-batch-id">BATCH ID</label>
+                            <input type="text" id="ho-batch-id" name="batch_id" placeholder="e.g. B-101" required>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="ho-location">NEW LOCATION (GPS)</label>
+                            <input type="text" id="ho-location" name="new_location" placeholder="e.g. 28.6139,77.2090" required>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="ho-role">TRANSFER TO</label>
+                            <select id="ho-role" name="role_index" required>
+                                <option value="" disabled selected>— SELECT RECIPIENT ROLE —</option>
+                                <option value="1">DISTRIBUTOR (In Transit)</option>
+                                <option value="2">PHARMACY / HOSPITAL (At Retailer)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="handover-btn">
+                            <span class="btn-text">EXECUTE HANDOVER</span>
+                            <span class="btn-loader hidden">ANALYZING RISK...</span>
+                        </button>
+
+                    </form>
+                </div>
+
+                <!-- Risk Result Card -->
+                <div class="card result-card hidden" id="handover-result">
+                    <div class="card-label">02 — AI RISK ANALYSIS & CHAIN RECEIPT</div>
+
+                    <!-- Risk Meter -->
+                    <div class="risk-meter-block">
+                        <div class="risk-label-row">
+                            <span class="result-key">RISK SCORE</span>
+                            <span class="risk-value mono" id="res-risk-score">—</span>
+                        </div>
+                        <div class="risk-bar-bg">
+                            <div class="risk-bar-fill" id="res-risk-bar"></div>
+                        </div>
+                        <span class="risk-verdict" id="res-risk-verdict">—</span>
+                    </div>
+
+                    <div class="result-row">
+                        <span class="result-key">TX HASH</span>
+                        <span class="result-val mono" id="res-ho-tx-hash">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-key">STATUS</span>
+                        <span class="result-val status-badge" id="res-ho-status">—</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TAB 3: VERIFY                                                -->
+        <!-- ============================================================ -->
+        <section id="tab-verify" class="tab-panel hidden">
+
+            <div class="panel-header">
+                <h1 class="panel-title">AUTHENTICATE MEDICINE</h1>
+                <p class="panel-desc">Scan a Medicine ID to verify authenticity against the blockchain. Ghost, Zombie, and Teleportation checks are run automatically.</p>
+            </div>
+
+            <div class="panel-body">
+
+                <!-- Form Card -->
+                <div class="card form-card">
+                    <div class="card-label">01 — SCAN / ENTER ID</div>
+                    <form id="verify-form">
+
+                        <div class="field-group">
+                            <label for="v-medicine-id">MEDICINE ID</label>
+                            <input type="text" id="v-medicine-id" name="medicine_id" placeholder="e.g. M-555" required>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="v-location">SCAN LOCATION (GPS)</label>
+                            <input type="text" id="v-location" name="location" placeholder="e.g. 19.0760,72.8777" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="verify-btn">
+                            <span class="btn-text">AUTHENTICATE</span>
+                            <span class="btn-loader hidden">QUERYING CHAIN...</span>
+                        </button>
+
+                    </form>
+                </div>
+
+                <!-- Verification Result Card -->
+                <div class="card result-card hidden" id="verify-result">
+                    <div class="card-label">02 — AUTHENTICATION RESULT</div>
+
+                    <!-- Big AUTHENTIC / FAKE Banner -->
+                    <div class="auth-verdict-banner" id="auth-banner">
+                        <span class="auth-icon" id="auth-icon">?</span>
+                        <span class="auth-text" id="auth-text">PENDING</span>
+                    </div>
+
+                    <!-- Blockchain Data Table -->
+                    <div class="data-table" id="verify-data-table">
+                        <div class="result-row">
+                            <span class="result-key">MEDICINE NAME</span>
+                            <span class="result-val" id="res-v-name">—</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-key">LAST LOCATION</span>
+                            <span class="result-val mono" id="res-v-location">—</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-key">STATUS CODE</span>
+                            <span class="result-val mono" id="res-v-status">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Journey Graph (image returned by AI engine) -->
+                    <div class="journey-block hidden" id="journey-block">
+                        <div class="journey-label">SUPPLY CHAIN JOURNEY</div>
+                        <img id="journey-graph-img" src="" alt="Journey Graph" class="journey-img">
+                    </div>
+
+                    <!-- Movement History Table -->
+                    <div class="history-block hidden" id="history-block">
+                        <div class="journey-label">MOVEMENT HISTORY</div>
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>ROLE</th>
+                                    <th>LOCATION</th>
+                                    <th>RISK SCORE</th>
+                                    <th>TIMESTAMP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-800 bg-slate-900/50 mt-auto py-6">
-        <div class="container mx-auto px-4 text-center text-slate-600 text-xs">
-            <p>&copy; 2026 PharmaChain Prototype. Secure Track & Trace Solution.</p>
-        </div>
+    <!-- ========== FOOTER ========== -->
+    <footer id="site-footer">
+        <span>PHARMACHAIN v1.0 — SEPOLIA TESTNET</span>
+        <span>Built on Ethereum · FastAPI · MongoDB · AI Risk Engine</span>
     </footer>
 
-    <!-- VIEW TEMPLATES -->
+    <!-- Toast Notification (global) -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-msg">Message here</span>
+    </div>
 
-    <!-- 1. Manufacturer View -->
-    <template id="view-manufacturer">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in">
-            <div class="glass-panel rounded-xl p-8">
-                <h2 class="text-2xl font-bold mb-2 text-white flex items-center">
-                    <span class="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center mr-3 text-lg">
-                        <i class="fa-solid fa-flask"></i>
-                    </span>
-                    Manufacturing Unit
-                </h2>
-                <p class="text-slate-400 text-sm mb-8 ml-14">Register new pharmaceutical batches onto the blockchain.</p>
-                
-                <form onsubmit="app.handleManufacturerSubmit(event)" class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Drug Name</label>
-                        <input type="text" name="drugName" placeholder="e.g., Amoxicillin 500mg" required class="w-full p-3 rounded-lg input-field">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Batch ID (Auto)</label>
-                            <input type="text" name="batchNum" id="auto-batch" readonly class="w-full p-3 rounded-lg input-field font-mono text-blue-400 bg-slate-800/50 cursor-not-allowed">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Expiry Date</label>
-                            <input type="date" name="expiry" required class="w-full p-3 rounded-lg input-field">
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 group">
-                        <i class="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i> Create Batch & Generate QR
-                    </button>
-                </form>
-            </div>
-
-            <div class="glass-panel rounded-xl p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10">
-                    <i class="fa-solid fa-qrcode text-9xl"></i>
-                </div>
-                
-                <div id="qr-result-area" class="hidden w-full flex flex-col items-center animate-fade-in">
-                    <div class="bg-white p-4 rounded-xl mb-4 shadow-xl">
-                        <img id="generated-qr" src="" alt="QR Code" class="w-48 h-48 object-contain">
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-1">Batch Created!</h3>
-                    <p class="text-slate-400 text-sm mb-4">Batch ID: <span id="display-batch-id" class="font-mono text-blue-400"></span></p>
-                    <div class="bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-check-circle"></i> Logged on Blockchain
-                    </div>
-                </div>
-
-                <div id="qr-placeholder" class="text-slate-500">
-                    <div class="w-24 h-24 rounded-full bg-slate-800 border-2 border-dashed border-slate-600 flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-qrcode text-3xl"></i>
-                    </div>
-                    <p>Generated QR code will appear here</p>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- 2. Distributor View -->
-    <template id="view-distributor">
-        <div class="max-w-3xl mx-auto animate-fade-in">
-            <div class="glass-panel rounded-xl p-8 mb-6">
-                <h2 class="text-2xl font-bold mb-2 text-white flex items-center">
-                    <span class="w-10 h-10 rounded-lg bg-orange-600/20 text-orange-400 flex items-center justify-center mr-3 text-lg">
-                        <i class="fa-solid fa-truck-fast"></i>
-                    </span>
-                    Distributor Logistics
-                </h2>
-                <p class="text-slate-400 text-sm mb-8 ml-14">Receive shipments from manufacturers and dispatch to pharmacies.</p>
-
-                <div class="flex gap-3">
-                    <input type="text" id="distributor-scan-input" placeholder="Scan QR or Enter Batch ID" class="flex-grow p-4 rounded-lg input-field font-mono text-lg">
-                    <button onclick="app.distributorScan()" class="bg-slate-700 hover:bg-slate-600 text-white px-8 rounded-lg font-bold transition-colors shadow-lg">
-                        Scan
-                    </button>
-                </div>
-            </div>
-
-            <!-- Action Card -->
-            <div id="distributor-action-area" class="hidden glass-panel rounded-xl p-8 border-l-4 border-orange-500 animate-fade-in">
-                <div class="flex flex-col md:flex-row gap-6">
-                    <div class="w-full md:w-1/3">
-                         <div class="bg-slate-800 rounded-lg p-4 text-center border border-slate-700">
-                            <i class="fa-solid fa-box text-4xl text-slate-500 mb-2"></i>
-                            <div class="text-xs text-slate-400 uppercase">Current Status</div>
-                            <div id="dist-current-status" class="font-bold text-white text-lg"></div>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-2/3">
-                        <h3 class="text-2xl font-bold text-white mb-1" id="dist-drug-name"></h3>
-                        <p class="text-slate-400 font-mono text-sm mb-6">ID: <span id="dist-batch-id" class="text-blue-400"></span></p>
-                        
-                        <div id="dist-controls" class="space-y-3">
-                            <!-- Buttons injected dynamically -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- 3. Pharmacy View -->
-    <template id="view-pharmacy">
-        <div class="max-w-3xl mx-auto animate-fade-in">
-            <div class="glass-panel rounded-xl p-8 mb-6">
-                <h2 class="text-2xl font-bold mb-2 text-white flex items-center">
-                    <span class="w-10 h-10 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center mr-3 text-lg">
-                        <i class="fa-solid fa-store"></i>
-                    </span>
-                    Retail Pharmacy
-                </h2>
-                <p class="text-slate-400 text-sm mb-8 ml-14">Verify received goods and register sales to consumers.</p>
-
-                <div class="flex gap-3">
-                    <input type="text" id="pharmacy-scan-input" placeholder="Scan QR or Enter Batch ID" class="flex-grow p-4 rounded-lg input-field font-mono text-lg">
-                    <button onclick="app.pharmacyScan()" class="bg-slate-700 hover:bg-slate-600 text-white px-8 rounded-lg font-bold transition-colors shadow-lg">
-                        Scan
-                    </button>
-                </div>
-            </div>
-
-             <!-- Action Card -->
-             <div id="pharmacy-action-area" class="hidden glass-panel rounded-xl p-8 border-l-4 border-emerald-500 animate-fade-in">
-                <div class="flex flex-col md:flex-row justify-between items-start gap-6">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <h3 class="text-2xl font-bold text-white" id="pharm-drug-name"></h3>
-                            <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded border border-green-500/30">Verified Authentic</span>
-                        </div>
-                        <p class="text-slate-400 text-sm mb-1">Batch ID: <span id="pharm-batch-id" class="font-mono text-blue-400"></span></p>
-                        <p class="text-slate-400 text-sm">Expiry: <span id="pharm-expiry" class="text-white"></span></p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xs text-slate-500 uppercase mb-1">Current State</div>
-                        <div id="pharm-status-badge" class="font-bold text-white bg-slate-800 px-3 py-1 rounded inline-block"></div>
-                    </div>
-                </div>
-                
-                <div class="mt-8 border-t border-slate-700 pt-6" id="pharm-controls">
-                    <!-- Buttons injected dynamically -->
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- 4. Customer View -->
-    <template id="view-customer">
-        <div class="max-w-md mx-auto animate-fade-in">
-            <div class="glass-panel rounded-xl p-8 text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-                
-                <h2 class="text-2xl font-bold mb-2 text-white">Product Verifier</h2>
-                <p class="text-slate-400 text-sm mb-8">Scan the Data Matrix on your medicine package.</p>
-
-                <!-- Camera Simulation -->
-                <div class="relative w-64 h-64 mx-auto bg-black rounded-2xl overflow-hidden border-4 border-slate-700/50 mb-8 group shadow-2xl">
-                    <div class="absolute inset-0 flex items-center justify-center z-10">
-                        <i class="fa-solid fa-camera text-slate-700 text-4xl group-hover:text-slate-600 transition-colors"></i>
-                    </div>
-                    <div class="scan-line z-20"></div>
-                    <!-- Frame markers -->
-                    <div class="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-white/30 rounded-tl-lg z-20"></div>
-                    <div class="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-white/30 rounded-tr-lg z-20"></div>
-                    <div class="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-white/30 rounded-bl-lg z-20"></div>
-                    <div class="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-white/30 rounded-br-lg z-20"></div>
-                    
-                    <div class="absolute bottom-2 w-full text-center text-[10px] text-white/40 font-mono z-20">LIVE CAMERA FEED</div>
-                </div>
-
-                <div class="space-y-3">
-                    <input type="text" id="customer-scan-input" placeholder="Enter Batch ID manually" class="w-full p-3 rounded-lg input-field text-center font-mono">
-                    <button onclick="app.customerScan()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-500/20 transition-all">
-                        Check Authenticity
-                    </button>
-                </div>
-            </div>
-
-            <!-- Result Card -->
-            <div id="customer-result" class="mt-6 hidden animate-fade-in">
-                <!-- Content injected via JS -->
-            </div>
-        </div>
-    </template>
-
-    <!-- JS Logic -->
-    <script>
-        class PharmaChainApp {
-            constructor() {
-                this.role = 'manufacturer';
-                this.db = this.loadDatabase();
-                this.init();
-            }
-
-            // --- Database & Persistence ---
-            loadDatabase() {
-                const stored = localStorage.getItem('pharmaChainDB');
-                return stored ? JSON.parse(stored) : [];
-            }
-
-            saveDatabase() {
-                localStorage.setItem('pharmaChainDB', JSON.stringify(this.db));
-                this.renderLedger();
-            }
-
-            clearData() {
-                if(confirm('Are you sure you want to clear the blockchain? This cannot be undone.')) {
-                    this.db = [];
-                    this.saveDatabase();
-                    // If on manufacturer view, reset the input ID
-                    if(this.role === 'manufacturer') {
-                        document.getElementById('auto-batch').value = this.generateBatchId();
-                    }
-                    this.showToast('Blockchain reset successfully', 'red');
-                }
-            }
-
-            // --- Core Logic ---
-            generateBatchId() {
-                return 'BTC-' + Math.floor(10000 + Math.random() * 90000);
-            }
-
-            createBatch(name, expiry) {
-                const batchId = document.getElementById('auto-batch').value;
-                const newDrug = {
-                    id: batchId,
-                    name: name,
-                    expiry: expiry,
-                    owner: 'manufacturer',
-                    status: 'Manufactured',
-                    history: [
-                        { role: 'Manufacturer', action: 'Batch Created', details: 'Quality Check Passed', date: new Date().toLocaleString() }
-                    ]
-                };
-                this.db.push(newDrug);
-                this.saveDatabase();
-                return batchId;
-            }
-
-            findBatch(id) {
-                return this.db.find(d => d.id === id);
-            }
-
-            updateBatchStatus(id, newOwner, newStatus, action, details) {
-                const batch = this.findBatch(id);
-                if (batch) {
-                    batch.owner = newOwner;
-                    batch.status = newStatus;
-                    batch.history.push({
-                        role: this.capitalize(newOwner),
-                        action: action,
-                        details: details,
-                        date: new Date().toLocaleString()
-                    });
-                    this.saveDatabase();
-                    return true;
-                }
-                return false;
-            }
-
-            // --- Event Handlers & View Logic ---
-
-            init() {
-                // Check local storage for last role or default
-                this.setRole('manufacturer');
-                this.renderLedger();
-            }
-
-            setRole(role) {
-                this.role = role;
-                
-                // Update Nav UI
-                document.querySelectorAll('.role-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                    btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-700');
-                });
-                
-                const activeBtn = document.getElementById(`nav-${role}`);
-                if (activeBtn) {
-                    activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
-                    activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-700');
-                }
-
-                // For Mobile Select
-                const mobileSelect = document.getElementById('mobile-role-select');
-                if(mobileSelect) mobileSelect.value = role;
-
-                this.renderCurrentView();
-            }
-
-            renderCurrentView() {
-                const container = document.getElementById('dashboard-container');
-                const template = document.getElementById(`view-${this.role}`);
-                
-                if (template) {
-                    // Clone content
-                    container.innerHTML = template.innerHTML;
-                    
-                    // View-specific setup
-                    if (this.role === 'manufacturer') {
-                        document.getElementById('auto-batch').value = this.generateBatchId();
-                    }
-                }
-            }
-
-            // 1. Manufacturer Actions
-            handleManufacturerSubmit(e) {
-                e.preventDefault();
-                const form = e.target;
-                const name = form.drugName.value;
-                const expiry = form.expiry.value;
-                
-                const batchId = this.createBatch(name, expiry);
-                
-                // Show Result
-                const qrArea = document.getElementById('qr-result-area');
-                const placeholder = document.getElementById('qr-placeholder');
-                const qrImg = document.getElementById('generated-qr');
-                const displayId = document.getElementById('display-batch-id');
-
-                // Generate QR URL (Using API)
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${batchId}`;
-                displayId.textContent = batchId;
-
-                placeholder.classList.add('hidden');
-                qrArea.classList.remove('hidden');
-                
-                // Reset form slightly but keep ID for reference until page reload or new batch
-                form.reset();
-                // Generate new ID for next batch
-                setTimeout(() => {
-                    document.getElementById('auto-batch').value = this.generateBatchId();
-                }, 2000);
-
-                this.showToast(`Batch ${batchId} Created Successfully`, 'green');
-            }
-
-            // 2. Distributor Actions
-            distributorScan() {
-                const input = document.getElementById('distributor-scan-input');
-                const id = input.value.trim();
-                const area = document.getElementById('distributor-action-area');
-                const batch = this.findBatch(id);
-
-                if (!batch) {
-                    this.showToast('Batch ID not found in blockchain.', 'red');
-                    area.classList.add('hidden');
-                    return;
-                }
-
-                area.classList.remove('hidden');
-                document.getElementById('dist-drug-name').textContent = batch.name;
-                document.getElementById('dist-batch-id').textContent = batch.id;
-                document.getElementById('dist-current-status').textContent = batch.status;
-
-                const controls = document.getElementById('dist-controls');
-                controls.innerHTML = ''; // Clear prev buttons
-
-                // Logic for buttons
-                if (batch.owner === 'manufacturer') {
-                    controls.innerHTML = `
-                        <button onclick="app.processDistributorAction('${id}', 'receive')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-dolly"></i> Receive Shipment
-                        </button>`;
-                } else if (batch.owner === 'distributor' && batch.status === 'In Transit') {
-                     controls.innerHTML = `
-                        <button onclick="app.processDistributorAction('${id}', 'dispatch')" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-truck-arrow-right"></i> Dispatch to Pharmacy
-                        </button>`;
-                } else {
-                    controls.innerHTML = `<div class="p-3 bg-slate-700 rounded text-center text-slate-400">No actions available. Current owner: ${batch.owner}</div>`;
-                }
-            }
-
-            processDistributorAction(id, action) {
-                if (action === 'receive') {
-                    this.updateBatchStatus(id, 'distributor', 'In Transit', 'Received by Distributor', 'Verified Integrity');
-                } else if (action === 'dispatch') {
-                    this.updateBatchStatus(id, 'distributor', 'Dispatched', 'Shipped to Pharmacy', 'Temperature Controlled');
-                }
-                this.distributorScan(); // Refresh UI
-                this.showToast('Status updated on Blockchain', 'green');
-            }
-
-            // 3. Pharmacy Actions
-            pharmacyScan() {
-                const input = document.getElementById('pharmacy-scan-input');
-                const id = input.value.trim();
-                const area = document.getElementById('pharmacy-action-area');
-                const batch = this.findBatch(id);
-
-                if (!batch) {
-                    this.showToast('Batch ID not found.', 'red');
-                    area.classList.add('hidden');
-                    return;
-                }
-
-                area.classList.remove('hidden');
-                document.getElementById('pharm-drug-name').textContent = batch.name;
-                document.getElementById('pharm-batch-id').textContent = batch.id;
-                document.getElementById('pharm-expiry').textContent = batch.expiry;
-                document.getElementById('pharm-status-badge').textContent = batch.status;
-
-                const controls = document.getElementById('pharm-controls');
-                controls.innerHTML = '';
-
-                if (batch.status === 'Dispatched') {
-                    controls.innerHTML = `
-                        <button onclick="app.processPharmacyAction('${id}', 'stock')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg">
-                            <i class="fa-solid fa-boxes-stacked mr-2"></i> Add to Inventory
-                        </button>`;
-                } else if (batch.owner === 'pharmacy' && batch.status === 'In Stock') {
-                    controls.innerHTML = `
-                        <button onclick="app.processPharmacyAction('${id}', 'sell')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg">
-                            <i class="fa-solid fa-cash-register mr-2"></i> Mark as Sold
-                        </button>`;
-                } else if (batch.status === 'Sold') {
-                     controls.innerHTML = `<div class="p-3 bg-slate-700 rounded text-center text-green-400 font-bold">Item Already Sold</div>`;
-                } else {
-                     controls.innerHTML = `<div class="p-3 bg-slate-700 rounded text-center text-slate-400">Waiting for shipment...</div>`;
-                }
-            }
-
-            processPharmacyAction(id, action) {
-                if (action === 'stock') {
-                    this.updateBatchStatus(id, 'pharmacy', 'In Stock', 'Received at Pharmacy', 'Stocked on Shelf A2');
-                } else if (action === 'sell') {
-                    this.updateBatchStatus(id, 'customer', 'Sold', 'Sold to Consumer', 'Prescription Verified');
-                }
-                this.pharmacyScan();
-                this.showToast('Transaction Recorded', 'green');
-            }
-
-            // 4. Customer Actions
-            customerScan() {
-                const input = document.getElementById('customer-scan-input');
-                const id = input.value.trim();
-                const resultDiv = document.getElementById('customer-result');
-                const batch = this.findBatch(id);
-
-                if (!batch) {
-                    this.showToast('Invalid Batch ID. Product may be counterfeit.', 'red');
-                    resultDiv.classList.add('hidden');
-                    return;
-                }
-
-                resultDiv.classList.remove('hidden');
-                
-                // Build Timeline
-                let timelineHtml = '';
-                batch.history.forEach((h, index) => {
-                    timelineHtml += `
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="text-sm text-slate-500 mb-1">${h.date}</div>
-                            <div class="text-white font-bold">${h.action}</div>
-                            <div class="text-slate-400 text-sm italic">${h.details}</div>
-                            <div class="text-xs text-blue-400 mt-1 uppercase font-semibold">${h.role}</div>
-                        </div>
-                    `;
-                });
-
-                resultDiv.innerHTML = `
-                    <div class="glass-panel rounded-xl p-6 text-left border-t-4 ${batch.status === 'Sold' ? 'border-green-500' : 'border-yellow-500'}">
-                        <div class="flex justify-between items-start mb-6 border-b border-slate-700 pb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white">${batch.name}</h3>
-                                <p class="text-sm text-slate-400">Batch: <span class="font-mono text-blue-400">${batch.id}</span></p>
-                            </div>
-                            <div class="text-right">
-                                <i class="fa-solid fa-shield-check text-3xl text-green-500"></i>
-                                <p class="text-xs text-green-400 font-bold mt-1">AUTHENTIC</p>
-                            </div>
-                        </div>
-                        <h4 class="text-sm font-bold text-slate-300 uppercase mb-4">Blockchain Journey</h4>
-                        <div class="pl-2">
-                            ${timelineHtml}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Utilities ---
-            renderLedger() {
-                const tbody = document.getElementById('ledger-body');
-                const emptyMsg = document.getElementById('empty-ledger-msg');
-                
-                if (this.db.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyMsg.classList.remove('hidden');
-                    return;
-                }
-                
-                emptyMsg.classList.add('hidden');
-                tbody.innerHTML = this.db.slice().reverse().map(item => `
-                    <tr class="bg-slate-800/30 border-b border-slate-700 hover:bg-slate-700/50 transition-colors">
-                        <td class="px-6 py-4 font-mono text-blue-400">${item.id}</td>
-                        <td class="px-6 py-4 font-bold text-white">${item.name}</td>
-                        <td class="px-6 py-4">
-                            <span class="bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-0.5 rounded border border-slate-600 uppercase">
-                                ${item.owner}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="${this.getStatusColor(item.status)} text-xs font-bold px-2 py-1 rounded-full">
-                                ${item.status}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-slate-400 text-xs">
-                            ${item.history[item.history.length-1].date}
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            getStatusColor(status) {
-                switch(status) {
-                    case 'Manufactured': return 'bg-blue-900 text-blue-300';
-                    case 'In Transit': return 'bg-orange-900 text-orange-300';
-                    case 'Dispatched': return 'bg-yellow-900 text-yellow-300';
-                    case 'In Stock': return 'bg-purple-900 text-purple-300';
-                    case 'Sold': return 'bg-green-900 text-green-300';
-                    default: return 'bg-slate-700 text-slate-300';
-                }
-            }
-
-            capitalize(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1);
-            }
-
-            showToast(message, type) {
-                // Simple custom toast implementation
-                const toast = document.createElement('div');
-                const bgColor = type === 'red' ? 'bg-red-600' : 'bg-green-600';
-                toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-xl transform transition-all duration-300 translate-y-20 opacity-0 z-50 flex items-center gap-3`;
-                toast.innerHTML = `<i class="fa-solid ${type === 'red' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> ${message}`;
-                
-                document.body.appendChild(toast);
-                
-                // Animate in
-                setTimeout(() => {
-                    toast.classList.remove('translate-y-20', 'opacity-0');
-                }, 10);
-
-                // Animate out
-                setTimeout(() => {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
-            }
-        }
-
-        // Initialize App
-        const app = new PharmaChainApp();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
