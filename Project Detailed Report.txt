@@ -1,0 +1,50 @@
+### FrontEnd 
+
+
+
+Files: 
+
+index.html
+
+style.css 
+
+script.js
+
+
+
+Explanation:
+
+index.html will have a skeleton of code
+
+style.css will have a code for styling the sheet
+
+script.js will use the library called react.js
+
+-react.js helps makes easy making as an app
+
+
+
+### Blockchain
+
+file1.sol
+
+
+
+implemented in Revive remix IDE 
+
+
+
+https://remix.polkadot.io/#lang=en\&optimize=false\&runs=200\&evmVersion=null\&version=soljson-v0.8.28+commit.7893614a-revive-0.1.0-dev.12.js
+
+
+
+
+
+
+
+
+
+
+
+
+
